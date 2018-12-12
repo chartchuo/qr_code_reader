@@ -18,51 +18,75 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final items = List<String>.generate(0, (i) => "Item ${i + 1}");
-  // List<String> items;
+  final items = List<String>.generate(3, (i) => "Item ${i + 1}");
+  final title = 'QR Code Reader';
+
   Future<String> _barcodeString;
+
+  final topAppBar = AppBar(
+    elevation: 0.1,
+    backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
+    title: Text('QR Reader'),
+    actions: <Widget>[
+      IconButton(
+        icon: Icon(Icons.list),
+        onPressed: () {},
+      )
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
-    final title = 'QR Code Reader';
-
     return MaterialApp(
       title: title,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primaryColor: Color.fromRGBO(58, 66, 86, 1.0)),
       home: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
+        backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
+        appBar: topAppBar,
         body: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
-
-            return Dismissible(
-              // Each Dismissible must contain a Key. Keys allow Flutter to
-              // uniquely identify Widgets.
-              key: Key(item),
-              // We also need to provide a function that tells our app
-              // what to do after an item has been swiped away.
-              onDismissed: (direction) {
-                // Remove the item from our data source.
-                setState(() {
-                  items.removeAt(index);
-                });
-
-                // Then show a snackbar!
-                Scaffold.of(context)
-                    .showSnackBar(SnackBar(content: Text("$item dismissed")));
-              },
-              // Show a red background as the item is swiped away
-              background: Container(color: Colors.red),
-              child: ListTile(title: Text('$item')),
+            // final item = index;
+            return Card(
+              elevation: 8.0,
+              margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+              child: Container(
+                decoration:
+                    BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+                child: ListTile(
+                  onTap: () {
+                    Share.share('$item');
+                  },
+                  onLongPress: () {
+                    setState(() {
+                      items.removeAt(index);
+                    });
+                  },
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  leading: Container(
+                    padding: EdgeInsets.only(right: 12.0),
+                    decoration: new BoxDecoration(
+                        border: new Border(
+                            right: new BorderSide(
+                                width: 1.0, color: Colors.white24))),
+                    child: StringIcon('$item'),
+                  ),
+                  title: Text(
+                    "$item",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
             );
           },
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.blueGrey,
           onPressed: () {
             _barcodeString = QRCodeReader()
                 .setAutoFocusIntervalInMs(200)
@@ -72,82 +96,43 @@ class MyAppState extends State<MyApp> {
                 .setExecuteAfterPermissionGranted(true)
                 .scan();
             _barcodeString.then((String str) {
-              if(str==null) return;
+              if (str == null) return;
               setState(() {
                 items.add(str);
               });
             });
           },
           tooltip: 'Reader the QRCode',
-          child: Icon(Icons.add_a_photo),
+          child: Icon(Icons.add_a_photo, color: Colors.white,),
         ),
       ),
     );
   }
 }
 
-class MyApp2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'QRCode Reader',
-      home: new MyHomePage(),
-    );
-  }
-}
+class StringIcon extends StatelessWidget {
+  final String str;
+  final RegExp httpRegExp = new RegExp(
+    r"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$",
+    caseSensitive: false,
+    multiLine: false,
+  );
+  final RegExp numRegExp = new RegExp(
+    r"^[-+]?\d+$",
+    caseSensitive: false,
+    multiLine: false,
+  );
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  final Map<String, dynamic> pluginParameters = {};
-
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  Future<String> _barcodeString;
+  StringIcon(this.str);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('QRCode Reader Example'),
-      ),
-      body: Center(
-        child: FutureBuilder<String>(
-            future: _barcodeString,
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.data == null) {
-                return Text('');
-              } else {
-                return Row(children: <Widget>[
-                  Text(snapshot.data),
-                  FloatingActionButton(
-                    onPressed: () => Share.share(snapshot.data),
-                    child: Icon(Icons.share),
-                  )
-                ]);
-              }
-            }),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _barcodeString = QRCodeReader()
-                .setAutoFocusIntervalInMs(200)
-                .setForceAutoFocus(true)
-                .setTorchEnabled(true)
-                .setHandlePermissions(true)
-                .setExecuteAfterPermissionGranted(true)
-                .scan();
-          });
-        },
-        tooltip: 'Reader the QRCode',
-        child: Icon(Icons.add_a_photo),
-      ),
-    );
+    if (httpRegExp.hasMatch(str)) {
+      return Icon(Icons.http, color: Colors.white);
+    }
+    if (numRegExp.hasMatch(str)) {
+      return Icon(Icons.format_list_numbered, color: Colors.white);
+    }
+    return Icon(Icons.text_fields, color: Colors.white);
   }
 }
