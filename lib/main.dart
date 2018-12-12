@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(new MyApp());
@@ -18,7 +19,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final items = List<String>.generate(3, (i) => "Item ${i + 1}");
+  final items = List<String>.generate(0, (i) => "Item ${i + 1}");
   final title = 'QR Code Reader';
 
   Future<String> _barcodeString;
@@ -27,17 +28,19 @@ class MyAppState extends State<MyApp> {
     elevation: 0.1,
     backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
     title: Text('QR Reader'),
-    actions: <Widget>[
-      IconButton(
-        icon: Icon(Icons.list),
-        onPressed: () {},
-      )
-    ],
+    // actions: <Widget>[
+    //   IconButton(
+    //     icon: Icon(Icons.list),
+    //     onPressed: () {},
+    //   )
+    // ],
   );
+
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: title,
       theme: ThemeData(primaryColor: Color.fromRGBO(58, 66, 86, 1.0)),
       home: Scaffold(
@@ -103,7 +106,10 @@ class MyAppState extends State<MyApp> {
             });
           },
           tooltip: 'Reader the QRCode',
-          child: Icon(Icons.add_a_photo, color: Colors.white,),
+          child: Icon(
+            Icons.add_a_photo,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -122,6 +128,11 @@ class StringIcon extends StatelessWidget {
     caseSensitive: false,
     multiLine: false,
   );
+  final RegExp emailRegExp = new RegExp(
+    r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+    caseSensitive: false,
+    multiLine: false,
+  );
 
   StringIcon(this.str);
 
@@ -129,6 +140,9 @@ class StringIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     if (httpRegExp.hasMatch(str)) {
       return Icon(Icons.http, color: Colors.white);
+    }
+    if (emailRegExp.hasMatch(str)) {
+      return Icon(Icons.email, color: Colors.white);
     }
     if (numRegExp.hasMatch(str)) {
       return Icon(Icons.format_list_numbered, color: Colors.white);
