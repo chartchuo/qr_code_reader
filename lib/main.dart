@@ -29,7 +29,7 @@ class MyAppState extends State<MyApp> {
     setState(() {
       items = prefs.getStringList('data');
       if (items == null) {
-        items = List<String>.generate(30, (i) => "Item ${i + 1}");
+        items = List<String>.generate(0, (i) => "Item ${i + 1}");
       }
     });
   }
