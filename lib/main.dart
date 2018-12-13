@@ -22,8 +22,6 @@ class MyAppState extends State<MyApp> {
   List<String> items;
   final title = 'QR Code Reader';
 
-  // final _mainColor = Color.fromRGBO(66, 66, 88, 1.0);
-
   Future<String> _barcodeString;
 
   _loadData() async {
@@ -31,7 +29,7 @@ class MyAppState extends State<MyApp> {
     setState(() {
       items = prefs.getStringList('data');
       if (items == null) {
-        items = List<String>.generate(0, (i) => "Item ${i + 1}");
+        items = List<String>.generate(30, (i) => "Item ${i + 1}");
       }
     });
   }
@@ -146,12 +144,13 @@ class MyAppState extends State<MyApp> {
       home: Scaffold(
         backgroundColor: Color.fromRGBO(66, 66, 88, 1.0),
         appBar: _topAppBar,
-        body: Column(
-          children: <Widget>[
-            _list(),
-            _hintText(),
-          ],
-        ),
+        body: _list(),
+        // Column(
+        //   children: <Widget>[
+        //     _list(),
+        //     _hintText(),
+        //   ],
+        // ),
         floatingActionButton: _scanButton(),
       ),
     );
