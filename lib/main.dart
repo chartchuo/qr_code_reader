@@ -19,98 +19,140 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final items = List<String>.generate(0, (i) => "Item ${i + 1}");
+  List<String> items;
   final title = 'QR Code Reader';
+
+  // final _mainColor = Color.fromRGBO(66, 66, 88, 1.0);
 
   Future<String> _barcodeString;
 
-  final topAppBar = AppBar(
+  _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      items = prefs.getStringList('data');
+      if (items == null) {
+        items = List<String>.generate(0, (i) => "Item ${i + 1}");
+      }
+    });
+  }
+
+  _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setStringList('data', items);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  final _topAppBar = AppBar(
     elevation: 0.1,
-    backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
+    backgroundColor: Color.fromRGBO(66, 66, 88, 1.0),
     title: Text('QR Reader'),
-    // actions: <Widget>[
-    //   IconButton(
-    //     icon: Icon(Icons.list),
-    //     onPressed: () {},
-    //   )
-    // ],
   );
 
+  Widget _scanButton() {
+    return FloatingActionButton(
+      backgroundColor: Colors.blueGrey,
+      onPressed: () {
+        _barcodeString = QRCodeReader()
+            .setAutoFocusIntervalInMs(200)
+            .setForceAutoFocus(true)
+            .setTorchEnabled(true)
+            .setHandlePermissions(true)
+            .setExecuteAfterPermissionGranted(true)
+            .scan();
+        _barcodeString.then((String str) {
+          if (str == null) return;
+          setState(() {
+            items.add(str);
+            _saveData();
+          });
+        });
+      },
+      tooltip: 'Reader the QRCode',
+      child: Icon(
+        Icons.add_a_photo,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _list() {
+    return ListView.builder(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        // final item = index;
+        return Card(
+          elevation: 8.0,
+          margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+          child: Container(
+            decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+            child: ListTile(
+              onTap: () {
+                Share.share('$item');
+              },
+              onLongPress: () {
+                setState(() {
+                  items.removeAt(index);
+                });
+              },
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              leading: Container(
+                padding: EdgeInsets.only(right: 12.0),
+                decoration: BoxDecoration(
+                    border: Border(
+                        right: BorderSide(width: 1.0, color: Colors.white24))),
+                child: StringIcon('$item'),
+              ),
+              title: Text(
+                "$item",
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _hintText() {
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      child: Text(
+        'Tap list item ==> share.\nLong press ==> delete.',
+        style: TextStyle(
+          color: Colors.white54,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: title,
-      theme: ThemeData(primaryColor: Color.fromRGBO(58, 66, 86, 1.0)),
+      theme: ThemeData(primaryColor: Color.fromRGBO(66, 66, 88, 1.0)),
       home: Scaffold(
-        backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
-        appBar: topAppBar,
-        body: ListView.builder(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index];
-            // final item = index;
-            return Card(
-              elevation: 8.0,
-              margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-              child: Container(
-                decoration:
-                    BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-                child: ListTile(
-                  onTap: () {
-                    Share.share('$item');
-                  },
-                  onLongPress: () {
-                    setState(() {
-                      items.removeAt(index);
-                    });
-                  },
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                  leading: Container(
-                    padding: EdgeInsets.only(right: 12.0),
-                    decoration: new BoxDecoration(
-                        border: new Border(
-                            right: new BorderSide(
-                                width: 1.0, color: Colors.white24))),
-                    child: StringIcon('$item'),
-                  ),
-                  title: Text(
-                    "$item",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            );
-          },
+        backgroundColor: Color.fromRGBO(66, 66, 88, 1.0),
+        appBar: _topAppBar,
+        body: Column(
+          children: <Widget>[
+            _list(),
+            _hintText(),
+          ],
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blueGrey,
-          onPressed: () {
-            _barcodeString = QRCodeReader()
-                .setAutoFocusIntervalInMs(200)
-                .setForceAutoFocus(true)
-                .setTorchEnabled(true)
-                .setHandlePermissions(true)
-                .setExecuteAfterPermissionGranted(true)
-                .scan();
-            _barcodeString.then((String str) {
-              if (str == null) return;
-              setState(() {
-                items.add(str);
-              });
-            });
-          },
-          tooltip: 'Reader the QRCode',
-          child: Icon(
-            Icons.add_a_photo,
-            color: Colors.white,
-          ),
-        ),
+        floatingActionButton: _scanButton(),
       ),
     );
   }

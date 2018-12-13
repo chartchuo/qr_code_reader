@@ -1,4 +1,4 @@
-package com.example.qrcodereader;
+package com.chartchuo.qrcodereader;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
