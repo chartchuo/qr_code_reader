@@ -70,7 +70,7 @@ class MyAppState extends State<MyApp> {
   final _topAppBar = AppBar(
     elevation: 0.1,
     backgroundColor: Color.fromRGBO(66, 66, 88, 1.0),
-    title: Text('QR Reader'),
+    title: Text('My QR'),
   );
 
   Widget _scanButton() {
