@@ -20,7 +20,7 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   List<String> items;
-  final title = 'QR Code Reader';
+  final title = 'My QR';
 
   Future<String> _barcodeString;
 
@@ -41,6 +41,26 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  _scan() async {
+    try {
+      var res = await QRCodeReader()
+          .setAutoFocusIntervalInMs(200)
+          .setForceAutoFocus(true)
+          .setTorchEnabled(true)
+          .setHandlePermissions(true)
+          .setExecuteAfterPermissionGranted(true)
+          .scan();
+      setState(() {
+        if (res != null) {
+          items.add(res.toString());
+          _saveData();
+        }
+      });
+    } catch (e) {
+      print('scan error $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,22 +76,23 @@ class MyAppState extends State<MyApp> {
   Widget _scanButton() {
     return FloatingActionButton(
       backgroundColor: Colors.blueGrey,
-      onPressed: () {
-        _barcodeString = QRCodeReader()
-            .setAutoFocusIntervalInMs(200)
-            .setForceAutoFocus(true)
-            .setTorchEnabled(true)
-            .setHandlePermissions(true)
-            .setExecuteAfterPermissionGranted(true)
-            .scan();
-        _barcodeString.then((String str) {
-          if (str == null) return;
-          setState(() {
-            items.add(str);
-            _saveData();
-          });
-        });
-      },
+      // onPressed: () {
+      //   _barcodeString = QRCodeReader()
+      //       .setAutoFocusIntervalInMs(200)
+      //       .setForceAutoFocus(true)
+      //       .setTorchEnabled(true)
+      //       .setHandlePermissions(true)
+      //       .setExecuteAfterPermissionGranted(true)
+      //       .scan();
+      //   _barcodeString.then((String str) {
+      //     if (str == null) return;
+      //     setState(() {
+      //       items.add(str);
+      //       _saveData();
+      //     });
+      //   });
+      // },
+      onPressed: _scan,
       tooltip: 'Reader the QRCode',
       child: Icon(
         Icons.add_a_photo,

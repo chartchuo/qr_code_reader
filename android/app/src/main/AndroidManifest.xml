@@ -15,7 +15,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="QR Code Reader"
+        android:label="My QR"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
