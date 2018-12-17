@@ -5,6 +5,9 @@ import 'package:qr_reader/qr_reader.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'detail.dart';
+import 'model/lesson.dart';
+
 void main() {
   runApp(new MyApp());
 }
@@ -22,7 +25,7 @@ class MyAppState extends State<MyApp> {
   List<String> items;
   final title = 'My QR';
 
-  Future<String> _barcodeString;
+  // Future<String> _barcodeString;
 
   _loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -117,6 +120,10 @@ class MyAppState extends State<MyApp> {
             child: ListTile(
               onTap: () {
                 Share.share('$item');
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => DetailPage(lesson: Lesson())));
               },
               onLongPress: () {
                 setState(() {
@@ -144,17 +151,17 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _hintText() {
-    return Container(
-      padding: EdgeInsets.all(20.0),
-      child: Text(
-        'Tap list item ==> share.\nLong press ==> delete.',
-        style: TextStyle(
-          color: Colors.white54,
-        ),
-      ),
-    );
-  }
+  // Widget _hintText() {
+  //   return Container(
+  //     padding: EdgeInsets.all(20.0),
+  //     child: Text(
+  //       'Tap list item ==> share.\nLong press ==> delete.',
+  //       style: TextStyle(
+  //         color: Colors.white54,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
