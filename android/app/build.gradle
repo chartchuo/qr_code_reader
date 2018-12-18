@@ -55,11 +55,11 @@ android {
     //         storePassword keystoreProperties['storePassword']
     //     }
     // }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-        }
-    }
+    // buildTypes {
+    //     release {
+    //         signingConfig signingConfigs.release
+    //     }
+    // }
 
 }
 
